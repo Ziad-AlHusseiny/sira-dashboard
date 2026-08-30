@@ -167,6 +167,27 @@
   }
   .chip b { color: var(--brand); font-weight: 600; }
 
+  .row-1 { grid-template-columns: 1fr; margin-top: 16px; }
+  .letter-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+  .letter-head h2 { margin: 0; }
+  .copy-btn {
+    font-family: inherit; font-size: .8rem; font-weight: 600; cursor: pointer;
+    color: var(--series-1); background: none; border: 1px solid var(--border);
+    border-radius: 9px; padding: 5px 16px;
+  }
+  .copy-btn:hover { background: var(--page); }
+  .letter {
+    direction: ltr; text-align: left; font-size: .88rem; line-height: 1.8;
+    background: var(--page); border: 1px solid var(--border); border-radius: 10px;
+    padding: 16px 20px; min-height: 150px; white-space: pre-wrap; color: var(--ink);
+  }
+  .letter .caret {
+    display: inline-block; width: 2px; height: 1em; background: var(--series-1);
+    vertical-align: -2px; animation: blink 1s step-end infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+  .letter-note { font-size: .76rem; color: var(--muted); margin-top: 8px; }
+
   details { margin-top: 12px; font-size: .82rem; color: var(--ink-2); }
   details summary { cursor: pointer; color: var(--muted); }
   table { border-collapse: collapse; width: 100%; margin-top: 8px; font-size: .82rem; }
@@ -289,6 +310,17 @@
     </div>
   </div>
 
+  <div class="cards row-1">
+    <div class="card">
+      <div class="letter-head">
+        <h2>خطاب التقديم الجاهز — اتولّد لك تلقائيًا</h2>
+        <button class="copy-btn" id="copyLetter" type="button">نسخ الخطاب</button>
+      </div>
+      <div class="letter" id="letter" dir="ltr"></div>
+      <p class="letter-note">مبني على سيرتك + إعلان الوظيفة + نقاط التطابق اللي النظام اكتشفها (نسبة التوافق ٧٨٪).</p>
+    </div>
+  </div>
+
   <footer>سيرة · مشروع تخرج — لوحة عرض تجريبية ببيانات افتراضية لغرض الـ presentation.</footer>
 </div>
 <div id="tip" role="presentation"></div>
@@ -370,6 +402,38 @@
   } else {
     requestAnimationFrame(function () { setTimeout(animate, 150); });
   }
+
+  /* ---- cover letter: typewriter + copy ---- */
+  var LETTER =
+    "Dear Hiring Manager,\n\n" +
+    "I am writing to apply for the Data Analyst position at your company. As a Junior Data Analyst with hands-on experience in SQL, Python, and Excel, my profile matches 78% of the role's requirements — including 12 of the 17 skills listed in your posting.\n\n" +
+    "In my recent projects, I built automated reports that cut reporting time by 40% and analyzed customer data to support marketing decisions. I am currently strengthening my Power BI and data-storytelling skills to add even more value from day one.\n\n" +
+    "I would welcome the opportunity to discuss how I can contribute to your analytics team.\n\n" +
+    "Best regards,\nAbdelrahman Ahmed";
+  var letterEl = document.getElementById('letter');
+  function typeLetter() {
+    if (reduced) { letterEl.textContent = LETTER; return; }
+    var i = 0;
+    var caret = document.createElement('span');
+    caret.className = 'caret';
+    letterEl.appendChild(caret);
+    var span = document.createElement('span');
+    letterEl.insertBefore(span, caret);
+    (function step() {
+      span.textContent = LETTER.slice(0, i);
+      i += 3;
+      if (i <= LETTER.length + 2) setTimeout(step, 18);
+      else caret.remove();
+    })();
+  }
+  setTimeout(typeLetter, reduced ? 0 : 1600);
+  document.getElementById('copyLetter').addEventListener('click', function () {
+    var btn = this;
+    navigator.clipboard.writeText(LETTER).then(function () {
+      btn.textContent = '✓ اتنسخ';
+      setTimeout(function () { btn.textContent = 'نسخ الخطاب'; }, 1800);
+    });
+  });
 
   /* ---- tooltips ---- */
   var tip = document.getElementById('tip');
